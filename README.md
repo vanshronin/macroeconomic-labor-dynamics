@@ -1,52 +1,61 @@
-# Recession Impact Analysis
+# Macroeconomic Labor Dynamics (1939–2026)
 
-A data portfolio project comparing how U.S. employment sectors perform during recessions. Uses FRED (Federal Reserve Economic Data) to analyze white-collar vs. blue-collar job losses across historical downturns.
+An end-to-end data analysis portfolio project examining how U.S. white-collar and blue-collar employment cohorts behave across 13 NBER-defined recessions using Federal Reserve Economic Data (FRED).
 
-## What this project answers
+## Key Findings
 
-1. **Crossover moment:** When did white-collar jobs overtake blue-collar jobs in America?
-2. **First blood:** When a recession hits, do blue-collar or white-collar workers lose jobs first?
-3. **Vulnerability shift:** Are modern white-collar desk jobs as fragile as factory jobs were in the 1950s–1980s?
-4. **Sub-sector bifurcation:** Why did 2008 crush construction while 2001/2020 hit tech and corporate desks?
-5. **Predictive link:** If a recession hits tomorrow, which cohort gets hit harder—and how long to recover?
+* **Structural Crossover:** White-collar employment overtook blue-collar employment as the dominant share of the core labor cohort in the late 20th century, fundamentally shifting U.S. recession exposure.
+* **Asymmetric Shock & Recovery:** Blue-collar jobs suffer steeper immediate contractions at recession onset and take **~2.5x longer to recover** (avg. **57.5 months** vs. **23.4 months** for white-collar), failing to regain prior peaks before the next downturn in 2 historical cycles.
+* **Sub-Sector Bifurcation:** Contraction severity is cycle-specific—construction and manufacturing bore the brunt of 2008, whereas information and professional services experienced sharper shocks in 2001 and 2020.
+* **Predictive Limits:** Linear regression trained on pre-2020 cycles achieves moderate in-sample fit ($R^2 = 0.42$ blue-collar, $0.34$ white-collar) but fails out-of-sample ($R^2 < 0$), demonstrating that historical linear extrapolation breaks down during unprecedented black-swan shocks.
+
+## Core Research Questions
+
+1. **Structural Crossover:** When did white-collar employment overtake blue-collar employment in the U.S.?
+2. **Shock Sensitivity:** At recession onset, which cohort contracts first and fastest?
+3. **Era-by-Era Vulnerability:** How has peak-to-trough drawdown severity shifted across historical eras?
+4. **Sub-Sector Bifurcation:** Why did 2008 disproportionately impact construction while 2001 and 2020 hit tech and corporate services?
+5. **Predictive Outlook:** Can historical recession indicators reliably forecast forward 12-month sector job losses and recovery timelines?
 
 ## Notebooks
 
-| Notebook | What it does |
-|----------|-------------|
-| `01_data_collection_cleaning.ipynb` | Downloads 6 FRED series, aligns dates, engineers blue-collar/white-collar aggregates, saves master table |
-| `02_eda_visualizations.ipynb` | 5 charts: macro baseline, crossover moment, first blood event study, vulnerability shift, sub-sector bifurcation |
-| `03_predictive_modeling.ipynb` | Linear regression models to forecast forward 12-month job changes by cohort, plus recovery duration analysis |
+| Notebook | Scope |
+| :--- | :--- |
+| `01_data_collection_cleaning.ipynb` | Ingests 6 FRED series, aligns monthly timestamps, engineers cohort aggregates, and exports `master_table.csv` |
+| `02_eda_visualizations.ipynb` | Generates 5 analytical charts covering macro baselines, structural crossover, onset event studies, era drawdowns, and sub-sector bifurcation |
+| `03_predictive_modeling.ipynb` | Evaluates chronological linear regression models for forward 12-month job changes and computes historical recovery benchmarks |
 
-## Data series used
+## Data Dictionary & Feature Engineering
 
-| FRED Ticker | Column | What it measures |
-|-------------|--------|-----------------|
-| `USREC` | `recession_indicator` | NBER Recession Indicator (0 = expansion, 1 = recession) |
+### Raw FRED Series
+| Ticker | Column | Description |
+| :--- | :--- | :--- |
+| `USREC` | `recession_indicator` | NBER Recession Indicator (`0` = expansion, `1` = recession) |
 | `PAYEMS` | `total_nonfarm_payroll` | Total Nonfarm Payroll Employment (macro baseline) |
 | `USCONS` | `construction_employment` | Construction employment (blue-collar) |
 | `MANEMP` | `manufacturing_employment` | Manufacturing employment (blue-collar) |
 | `USPBS` | `professional_business_services` | Professional & Business Services (white-collar) |
 | `USINFO` | `information_sector` | Information / Tech sector (white-collar) |
 
-## Engineered features
-
+### Engineered Features
 | Column | Formula |
-|--------|---------|
-| `blue_collar_jobs` | `construction_employment` + `manufacturing_employment` |
-| `white_collar_jobs` | `professional_business_services` + `information_sector` |
-| `core_cohort_total` | `blue_collar_jobs` + `white_collar_jobs` |
-| `white_collar_pct` | `white_collar_jobs / core_cohort_total * 100` |
-| `blue_collar_pct` | `blue_collar_jobs / core_cohort_total * 100` |
+| :--- | :--- |
+| `blue_collar_jobs` | `construction_employment + manufacturing_employment` |
+| `white_collar_jobs` | `professional_business_services + information_sector` |
+| `core_cohort_total` | `blue_collar_jobs + white_collar_jobs` |
+| `white_collar_pct` | `(white_collar_jobs / core_cohort_total) * 100` |
+| `blue_collar_pct` | `(blue_collar_jobs / core_cohort_total) * 100` |
 
-## Setup
+## Project Structure
 
-1. Clone this repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Get a free FRED API key at https://fred.stlouisfed.org/docs/api/api_key.html
-4. Add your key to the `.env` file: `FRED_API_KEY=your_key_here`
-5. Run notebooks in order: `01` → `02` → `03`
-
-## License
-
-MIT
+```text
+├── data/
+│   └── processed/
+│       └── master_table.csv
+├── notebooks/
+│   ├── 01_data_collection_cleaning.ipynb
+│   ├── 02_eda_visualizations.ipynb
+│   └── 03_predictive_modeling.ipynb
+├── .env
+├── requirements.txt
+└── README.md
